@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
-import matplotlib.pyplot as plt # type: ignore
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg # pyright: ignore[reportMissingModuleSource]
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 FILE_NAME = "bmi_data.json"
 FILE_PATH = os.path.join(os.path.dirname(__file__), FILE_NAME)
@@ -43,7 +43,8 @@ def save_data(data):
         with open(FILE_PATH, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
     except OSError as error:
-        messagebox.showerror("Storage Error", f"Unable to save BMI data:\n{error}")
+        messagebox.showerror("Storage Error", f"Unable to save BMI data:
+{error}")
 
 
 def get_user_names(data):
@@ -76,9 +77,8 @@ class BMIApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("BMI Tracker")
-        self.geometry("600x720")
+        self.geometry("560x660")
         self.resizable(False, False)
-        self.configure(bg="#f8f9fa")
         self.data = load_data()
 
         self.user_var = tk.StringVar(value="")
@@ -89,87 +89,61 @@ class BMIApp(tk.Tk):
         self.status_var = tk.StringVar(value="Enter your details and press Calculate BMI.")
         self.stats_var = tk.StringVar(value="No historical data available.")
 
-        self.setup_styles()
         self.create_widgets()
         self.update_user_list()
 
-    def setup_styles(self):
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-
-        # Configure colors
-        self.style.configure('TFrame', background='#f8f9fa')
-        self.style.configure('TLabelFrame', background='#f8f9fa', borderwidth=1, relief='solid')
-        self.style.configure('TLabelFrame.Label', background='#f8f9fa', foreground='#495057', font=('Helvetica', 10, 'bold'))
-        self.style.configure('TLabel', background='#f8f9fa', foreground='#495057', font=('Helvetica', 10))
-        self.style.configure('TEntry', font=('Helvetica', 10), fieldbackground='#ffffff', borderwidth=1, relief='solid')
-        self.style.configure('TCombobox', font=('Helvetica', 10))
-
-        # Button styles
-        self.style.configure('TButton', font=('Helvetica', 10, 'bold'), background='#007bff', foreground='#ffffff', borderwidth=0, focusthickness=0)
-        self.style.map('TButton', background=[('active', '#0056b3')])
-
-        # Custom styles for category colors
-        self.style.configure('Underweight.TLabel', foreground='#dc3545')  # Red
-        self.style.configure('Normal.TLabel', foreground='#28a745')  # Green
-        self.style.configure('Overweight.TLabel', foreground='#ffc107')  # Yellow
-        self.style.configure('Obese.TLabel', foreground='#dc3545')  # Red
-
     def create_widgets(self):
-        title_label = ttk.Label(self, text="BMI Calculator & Tracker", font=("Helvetica", 20, "bold"), foreground="#343a40")
-        title_label.pack(pady=(30, 20))
+        title_label = ttk.Label(self, text="BMI Calculator & Tracker", font=("Segoe UI", 18, "bold"))
+        title_label.pack(pady=(20, 10))
 
-        user_frame = ttk.LabelFrame(self, text="User", padding=(15, 10))
-        user_frame.pack(fill="x", padx=25, pady=(0, 15))
+        user_frame = ttk.LabelFrame(self, text="User")
+        user_frame.pack(fill="x", padx=20, pady=(0, 12))
 
-        ttk.Label(user_frame, text="Name:").grid(row=0, column=0, sticky="w", padx=(0, 10), pady=5)
-        self.user_combo = ttk.Combobox(user_frame, textvariable=self.user_var, values=[], width=32, font=('Helvetica', 10))
-        self.user_combo.grid(row=0, column=1, padx=(0, 0), pady=5)
+        ttk.Label(user_frame, text="Name:").grid(row=0, column=0, sticky="w", padx=8, pady=8)
+        self.user_combo = ttk.Combobox(user_frame, textvariable=self.user_var, values=[], width=30)
+        self.user_combo.grid(row=0, column=1, padx=8, pady=8)
         self.user_combo.bind("<<ComboboxSelected>>", lambda event: self.update_stats())
 
-        input_frame = ttk.LabelFrame(self, text="Measurements", padding=(15, 10))
-        input_frame.pack(fill="x", padx=25, pady=(0, 15))
+        input_frame = ttk.LabelFrame(self, text="Measurements")
+        input_frame.pack(fill="x", padx=20, pady=(0, 12))
 
-        ttk.Label(input_frame, text="Weight (kg):").grid(row=0, column=0, sticky="w", padx=(0, 10), pady=8)
-        self.weight_entry = ttk.Entry(input_frame, textvariable=self.weight_var, width=35, font=('Helvetica', 10))
-        self.weight_entry.grid(row=0, column=1, padx=(0, 0), pady=8)
+        ttk.Label(input_frame, text="Weight (kg):").grid(row=0, column=0, sticky="w", padx=8, pady=8)
+        self.weight_entry = ttk.Entry(input_frame, textvariable=self.weight_var)
+        self.weight_entry.grid(row=0, column=1, padx=8, pady=8)
 
-        ttk.Label(input_frame, text="Height (cm):").grid(row=1, column=0, sticky="w", padx=(0, 10), pady=8)
-        self.height_entry = ttk.Entry(input_frame, textvariable=self.height_var, width=35, font=('Helvetica', 10))
-        self.height_entry.grid(row=1, column=1, padx=(0, 0), pady=8)
+        ttk.Label(input_frame, text="Height (cm):").grid(row=1, column=0, sticky="w", padx=8, pady=8)
+        self.height_entry = ttk.Entry(input_frame, textvariable=self.height_var)
+        self.height_entry.grid(row=1, column=1, padx=8, pady=8)
 
-        result_frame = ttk.LabelFrame(self, text="Latest Result", padding=(15, 10))
-        result_frame.pack(fill="x", padx=25, pady=(0, 15))
+        result_frame = ttk.LabelFrame(self, text="Latest Result")
+        result_frame.pack(fill="x", padx=20, pady=(0, 12))
 
-        self.bmi_label = ttk.Label(result_frame, textvariable=self.bmi_var, font=("Helvetica", 16, "bold"), foreground="#007bff")
-        self.bmi_label.pack(anchor="w", padx=(0, 0), pady=(5, 3))
-
-        self.category_label = ttk.Label(result_frame, textvariable=self.category_var, font=("Helvetica", 14))
-        self.category_label.pack(anchor="w", padx=(0, 0), pady=(0, 5))
+        ttk.Label(result_frame, textvariable=self.bmi_var, font=("Segoe UI", 14)).pack(anchor="w", padx=12, pady=(10, 4))
+        ttk.Label(result_frame, textvariable=self.category_var, font=("Segoe UI", 14)).pack(anchor="w", padx=12, pady=(0, 10))
 
         button_frame = ttk.Frame(self)
-        button_frame.pack(fill="x", padx=25, pady=(0, 15))
+        button_frame.pack(fill="x", padx=20, pady=(0, 12))
 
-        calculate_button = ttk.Button(button_frame, text="Calculate BMI", command=self.on_calculate, width=15)
-        calculate_button.grid(row=0, column=0, padx=(0, 8), pady=5)
+        calculate_button = ttk.Button(button_frame, text="Calculate BMI", command=self.on_calculate)
+        calculate_button.grid(row=0, column=0, padx=8, pady=8)
 
-        history_button = ttk.Button(button_frame, text="View History", command=self.show_history, width=15)
-        history_button.grid(row=0, column=1, padx=(0, 8), pady=5)
+        history_button = ttk.Button(button_frame, text="View History", command=self.show_history)
+        history_button.grid(row=0, column=1, padx=8, pady=8)
 
-        trend_button = ttk.Button(button_frame, text="BMI Trend", command=self.show_trend, width=15)
-        trend_button.grid(row=0, column=2, padx=(0, 8), pady=5)
+        trend_button = ttk.Button(button_frame, text="BMI Trend", command=self.show_trend)
+        trend_button.grid(row=0, column=2, padx=8, pady=8)
 
-        clear_button = ttk.Button(button_frame, text="Clear Fields", command=self.clear_fields, width=15)
-        clear_button.grid(row=0, column=3, padx=(0, 0), pady=5)
+        clear_button = ttk.Button(button_frame, text="Clear Fields", command=self.clear_fields)
+        clear_button.grid(row=0, column=3, padx=8, pady=8)
 
-        stats_frame = ttk.LabelFrame(self, text="User Statistics", padding=(15, 10))
-        stats_frame.pack(fill="both", expand=True, padx=25, pady=(0, 15))
+        stats_frame = ttk.LabelFrame(self, text="User Statistics")
+        stats_frame.pack(fill="both", expand=True, padx=20, pady=(0, 12))
 
-        ttk.Label(stats_frame, textvariable=self.stats_var, justify="left", wraplength=520, font=('Helvetica', 10)).pack(fill="both", padx=(0, 0), pady=(0, 0))
+        ttk.Label(stats_frame, textvariable=self.stats_var, justify="left", wraplength=500).pack(fill="both", padx=12, pady=12)
 
         status_frame = ttk.Frame(self)
-        status_frame.pack(fill="x", padx=25, pady=(0, 15))
-        ttk.Label(status_frame, textvariable=self.status_var, relief="flat", anchor="w", background="#e9ecef", foreground="#6c757d", padding=(10, 5), font=('Helvetica', 9)).pack(fill="x")
+        status_frame.pack(fill="x", padx=20, pady=(0, 10))
+        ttk.Label(status_frame, textvariable=self.status_var, relief="sunken", anchor="w").pack(fill="x")
 
     def update_user_list(self):
         users = get_user_names(self.data)
@@ -212,10 +186,6 @@ class BMIApp(tk.Tk):
         self.bmi_var.set(f"BMI: {bmi:.2f}")
         self.category_var.set(f"Category: {category}")
 
-        # Set category label color based on category
-        style_name = category.replace(" ", "").replace("weight", "") + ".TLabel"
-        self.category_label.configure(style=style_name)
-
         entry = {
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "user": user,
@@ -240,22 +210,24 @@ class BMIApp(tk.Tk):
         entries = get_user_entries(self.data, user)
         history_window = tk.Toplevel(self)
         history_window.title(f"BMI History - {user}")
-        history_window.geometry("600x450")
-        history_window.configure(bg="#f8f9fa")
+        history_window.geometry("560x420")
 
         if not entries:
-            ttk.Label(history_window, text="No history found for this user.", padding=20, background="#f8f9fa").pack()
+            ttk.Label(history_window, text="No history found for this user.", padding=12).pack()
             return
 
-        text_widget = ScrolledText(history_window, wrap="word", state="normal", font=("Helvetica", 11), bg="#ffffff", fg="#495057", padx=10, pady=10)
-        text_widget.pack(fill="both", expand=True, padx=20, pady=20)
+        text_widget = ScrolledText(history_window, wrap="word", state="normal", font=("Segoe UI", 11))
+        text_widget.pack(fill="both", expand=True, padx=12, pady=12)
 
         entries_sorted = sorted(entries, key=lambda item: item["date"])
         for index, entry in enumerate(entries_sorted, start=1):
             text_widget.insert(
                 "end",
-                f"{index}. {entry['date']} | BMI: {entry['bmi']:.2f} | Category: {entry['category']}\n"
-                f"    Weight: {entry['weight_kg']} kg, Height: {entry['height_cm']} cm\n\n"
+                f"{index}. {entry['date']} | BMI: {entry['bmi']:.2f} | Category: {entry['category']}
+"
+                f"    Weight: {entry['weight_kg']} kg, Height: {entry['height_cm']} cm
+
+"
             )
 
         text_widget.configure(state="disabled")
@@ -277,21 +249,19 @@ class BMIApp(tk.Tk):
 
         plot_window = tk.Toplevel(self)
         plot_window.title(f"BMI Trend - {user}")
-        plot_window.geometry("680x550")
-        plot_window.configure(bg="#f8f9fa")
+        plot_window.geometry("640x520")
 
-        figure = plt.Figure(figsize=(7.5, 4.5), dpi=100, facecolor="#f8f9fa")
+        figure = plt.Figure(figsize=(7, 4), dpi=100)
         ax = figure.add_subplot(111)
-        ax.plot(dates, bmis, marker="o", linestyle="-", color="#007bff", linewidth=2, markersize=6)
-        ax.set_title(f"BMI Trend for {user}", fontsize=14, fontweight='bold', color="#343a40")
-        ax.set_xlabel("Date", fontsize=12, color="#6c757d")
-        ax.set_ylabel("BMI", fontsize=12, color="#6c757d")
-        ax.grid(True, linestyle="--", alpha=0.4, color="#adb5bd")
-        ax.set_facecolor("#ffffff")
+        ax.plot(dates, bmis, marker="o", linestyle="-", color="#1f77b4")
+        ax.set_title(f"BMI Trend for {user}")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("BMI")
+        ax.grid(True, linestyle="--", alpha=0.4)
         figure.autofmt_xdate(rotation=35)
 
         canvas = FigureCanvasTkAgg(figure, plot_window)
-        canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=20)
+        canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
 
     def update_stats(self):
@@ -308,10 +278,14 @@ class BMIApp(tk.Tk):
 
         category_lines = ", ".join(f"{name}: {count}" for name, count in stats["categories"].items())
         self.stats_var.set(
-            f"Records: {stats['count']}\n"
-            f"Average BMI: {stats['average']:.2f}\n"
-            f"Lowest BMI: {stats['lowest']:.2f}\n"
-            f"Highest BMI: {stats['highest']:.2f}\n"
+            f"Records: {stats['count']}
+"
+            f"Average BMI: {stats['average']:.2f}
+"
+            f"Lowest BMI: {stats['lowest']:.2f}
+"
+            f"Highest BMI: {stats['highest']:.2f}
+"
             f"Category counts: {category_lines}"
         )
 
@@ -320,7 +294,6 @@ class BMIApp(tk.Tk):
         self.height_var.set("")
         self.bmi_var.set("BMI: -")
         self.category_var.set("Category: -")
-        self.category_label.configure(style="TLabel")  # Reset to default style
         self.status_var.set("Fields cleared. Enter new values to calculate BMI.")
 
 
