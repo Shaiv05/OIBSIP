@@ -1,0 +1,42 @@
+[
+  {
+    "user": "Shaiv Patel",
+    "weight_kg": 100.0,
+    "height_cm": 190.5,
+    "bmi": 27.56,
+    "category": "Overweight",
+    "date": "2026-05-07 11:01",
+    "unit_system": "metric",
+    "notes": ""
+  },
+  {
+    "user": "Shaiv Patel",
+    "weight_kg": 95.0,
+    "height_cm": 190.5,
+    "bmi": 26.18,
+    "category": "Overweight",
+    "date": "2026-05-07 11:01",
+    "unit_system": "metric",
+    "notes": ""
+  },
+  {
+    "user": "Shaiv Patel",
+    "weight_kg": 93.0,
+    "height_cm": 190.5,
+    "bmi": 25.63,
+    "category": "Overweight",
+    "date": "2026-05-07 11:02",
+    "unit_system": "metric",
+    "notes": ""
+  },
+  {
+    "user": "Shaiv Patel",
+    "weight_kg": 90.0,
+    "height_cm": 190.5,
+    "bmi": 24.8,
+    "category": "Normal Weight",
+    "date": "2026-05-07 11:02",
+    "unit_system": "metric",
+    "notes": ""
+  }
+]
