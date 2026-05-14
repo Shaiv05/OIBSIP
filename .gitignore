@@ -1,0 +1,44 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Database / local data
+*.db
+*.sqlite3
+
+# Environment files
+.env.local
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing
+.coverage
+pytest_cache/
+
+# Temporary files
+*.tmp
+*.swp
