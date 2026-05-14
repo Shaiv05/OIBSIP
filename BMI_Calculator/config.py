@@ -67,18 +67,21 @@ HEALTH_TIPS = {
 
 # ── Theme colours ─────────────────────────────────────────────────────────────
 THEME = {
-    "bg":          "#0f1117",   # near-black background
-    "surface":     "#1a1d2e",   # card surface
-    "surface2":    "#252840",   # slightly lighter surface
-    "accent":      "#4f8ef7",   # primary blue accent
-    "accent2":     "#7c6af7",   # purple accent
-    "success":     "#2ecc71",
-    "warning":     "#f39c12",
-    "danger":      "#e74c3c",
-    "text":        "#e8eaf6",
-    "text_muted":  "#7986cb",
-    "border":      "#2d3154",
-    "entry_bg":    "#1e2235",
+    "bg":          "#101218",   # deep dark background
+    "surface":     "#181c28",   # card surface — subtle lift
+    "surface2":    "#1f2435",   # secondary surface — lighter
+    "accent":      "#6C8EFF",   # soft periwinkle blue accent
+    "accent2":     "#A78BFA",   # lavender accent
+    "accent_glow": "#6C8EFF22", # faint glow color for rings
+    "success":     "#34D399",   # mint green
+    "warning":     "#FBBF24",   # warm amber
+    "danger":      "#F87171",   # soft red
+    "text":        "#E8ECF4",   # off-white text
+    "text_muted":  "#7B8AB8",   # muted blue-grey
+    "border":      "#262D44",   # subtle border
+    "entry_bg":    "#151a26",   # dark entry background
+    "card_hover":  "#1e2538",   # card hover state
+    "ring":        "#6C8EFF44", # button ring / outline glow
 }
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────

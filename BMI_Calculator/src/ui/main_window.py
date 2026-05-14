@@ -51,19 +51,19 @@ class BMIGauge(tk.Canvas):
     """Semi-circular gauge that visualises the BMI value."""
 
     SEGMENTS = [
-        (0,   16,   "#922b21"),
-        (16,  18.5, "#e74c3c"),
-        (18.5,25,   "#2ecc71"),
-        (25,  30,   "#f39c12"),
-        (30,  35,   "#e67e22"),
-        (35,  40,   "#e74c3c"),
-        (40,  50,   "#922b21"),
+        (0,   16,   "#B91C1C"),
+        (16,  18.5, "#F87171"),
+        (18.5,25,   "#34D399"),
+        (25,  30,   "#FBBF24"),
+        (30,  35,   "#F59E0B"),
+        (35,  40,   "#F87171"),
+        (40,  50,   "#B91C1C"),
     ]
     BMI_MIN, BMI_MAX = 10, 50
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, bg=THEME["surface"], highlightthickness=0,
-                         width=360, height=200, **kwargs)
+                         width=380, height=210, **kwargs)
         self._bmi: float | None = None
         self._draw_static()
 
@@ -75,14 +75,13 @@ class BMIGauge(tk.Canvas):
 
     def _draw_static(self):
         self.delete("static")
-        cx, cy, r_out, r_in = 180, 190, 160, 100
+        cx, cy, r_out, r_in = 190, 195, 165, 105
 
         for bmi_lo, bmi_hi, colour in self.SEGMENTS:
             a_start = self._angle(bmi_lo)
             a_end   = self._angle(bmi_hi)
-            # tkinter arc: start=0 is east, goes counter-clockwise
-            start_tk = a_start      # already in degrees (180→0 range)
-            extent_tk = a_start - a_end  # positive = counter-clockwise for our range
+            start_tk = a_start
+            extent_tk = a_start - a_end
 
             # Outer arc
             self.create_arc(
@@ -99,23 +98,23 @@ class BMIGauge(tk.Canvas):
         )
 
         # Bottom cutoff mask (rectangle below centre)
-        self.create_rectangle(0, cy, 360, 200, fill=THEME["surface"],
+        self.create_rectangle(0, cy, 380, 210, fill=THEME["surface"],
                               outline="", tags="static")
 
         # Tick labels
         for bmi_val, label in [(10, "10"), (18.5, "18.5"), (25, "25"),
                                 (30, "30"), (40, "40"), (50, "50")]:
             ang = math.radians(self._angle(bmi_val))
-            lx = cx + (r_out + 14) * math.cos(ang)
-            ly = cy - (r_out + 14) * math.sin(ang)
+            lx = cx + (r_out + 16) * math.cos(ang)
+            ly = cy - (r_out + 16) * math.sin(ang)
             self.create_text(lx, ly, text=label,
-                             fill=THEME["text_muted"], font=(FONT_FAMILY, 7),
+                             fill=THEME["text_muted"], font=(FONT_FAMILY, 8),
                              tags="static")
 
     def update_bmi(self, bmi: float | None):
         self._bmi = bmi
         self.delete("needle", "bmi_text")
-        cx, cy = 180, 190
+        cx, cy = 190, 195
 
         if bmi is None:
             self.create_text(cx, cy - 30, text="—",
@@ -126,17 +125,101 @@ class BMIGauge(tk.Canvas):
         # Draw needle
         ang_deg = self._angle(bmi)
         ang_rad = math.radians(ang_deg)
-        nx = cx + 130 * math.cos(ang_rad)
-        ny = cy - 130 * math.sin(ang_rad)
-        self.create_line(cx, cy, nx, ny, fill="#ffffff",
-                         width=3, tags="needle", capstyle="round")
-        self.create_oval(cx-6, cy-6, cx+6, cy+6,
-                         fill=THEME["accent"], outline="", tags="needle")
+        nx = cx + 135 * math.cos(ang_rad)
+        ny = cy - 135 * math.sin(ang_rad)
+        self.create_line(cx, cy, nx, ny, fill="#E8ECF4",
+                         width=2, tags="needle", capstyle="round")
+        # Glow center dot
+        self.create_oval(cx-8, cy-8, cx+8, cy+8,
+                         fill=THEME["accent"], outline="#3D5090",
+                         width=3, tags="needle")
 
         # BMI text in centre
-        self.create_text(cx, cy - 40, text=f"{bmi:.1f}",
+        self.create_text(cx, cy - 42, text=f"{bmi:.1f}",
                          fill=THEME["text"],
-                         font=(FONT_FAMILY, 26, "bold"), tags="bmi_text")
+                         font=(FONT_FAMILY, 28, "bold"), tags="bmi_text")
+
+
+# ── Glow Button — canvas-based with ring/glow hover effect ───────────────────
+
+class GlowButton(tk.Canvas):
+    """A styled button with a soft glowing ring on hover."""
+
+    def __init__(self, parent, text="", command=None, style="primary",
+                 width=160, height=40, **kwargs):
+        super().__init__(parent, width=width, height=height,
+                         bg=THEME["bg"], highlightthickness=0, **kwargs)
+        self._text = text
+        self._command = command
+        self._width = width
+        self._height = height
+        self._hovered = False
+        self._pressed = False
+
+        # Style presets (ring colors are muted variants for glow effect)
+        styles = {
+            "primary": {"bg": THEME["accent"], "fg": "#ffffff",
+                        "hover": "#5A7AE8", "ring": "#4A6ACC"},
+            "danger":  {"bg": THEME["danger"], "fg": "#ffffff",
+                        "hover": "#E55555", "ring": "#C55050"},
+            "ghost":   {"bg": THEME["surface2"], "fg": THEME["text"],
+                        "hover": THEME["border"], "ring": "#3D5090"},
+        }
+        self._s = styles.get(style, styles["primary"])
+
+        self.bind("<Enter>", self._on_enter)
+        self.bind("<Leave>", self._on_leave)
+        self.bind("<ButtonPress-1>", self._on_press)
+        self.bind("<ButtonRelease-1>", self._on_release)
+        self._draw()
+
+    def _draw(self):
+        self.delete("all")
+        w, h, r = self._width, self._height, 12
+        pad = 4  # ring padding
+
+        bg = self._s["hover"] if self._hovered else self._s["bg"]
+        if self._pressed:
+            bg = self._s["hover"]
+
+        # Outer glow ring (visible on hover)
+        if self._hovered:
+            _rounded_rect(self, pad-3, pad-3, w-pad+3, h-pad+3, r+3,
+                          fill="", outline=self._s["ring"], width=2)
+
+        # Main button body
+        _rounded_rect(self, pad, pad, w-pad, h-pad, r,
+                      fill=bg, outline="")
+
+        # Text
+        self.create_text(w/2, h/2, text=self._text,
+                         fill=self._s["fg"],
+                         font=(FONT_FAMILY, 10, "bold"))
+
+    def _on_enter(self, e):
+        self._hovered = True
+        self._draw()
+
+    def _on_leave(self, e):
+        self._hovered = False
+        self._pressed = False
+        self._draw()
+
+    def _on_press(self, e):
+        self._pressed = True
+        self._draw()
+
+    def _on_release(self, e):
+        self._pressed = False
+        self._hovered = False
+        self._draw()
+        if self._command:
+            self._command()
+
+    def configure_bg(self, bg):
+        """Update the parent background color for this button."""
+        super().configure(bg=bg)
+        self._draw()
 
 
 # ── Main Window ───────────────────────────────────────────────────────────────
@@ -180,24 +263,38 @@ class MainWindow(tk.Tk):
         T = THEME
 
         # ── Header ──────────────────────────────────────────────────────────
-        hdr = tk.Frame(self, bg=T["surface"], height=80)
+        hdr = tk.Frame(self, bg=T["surface"], height=72)
         hdr.pack(fill="x")
         hdr.pack_propagate(False)
-        tk.Label(hdr, text="⚕  BMI Tracker Pro", bg=T["surface"],
-                 fg=T["text"], font=(FONT_FAMILY, 22, "bold")).pack(
-            side="left", padx=28, pady=22)
-        tk.Label(hdr, text=f"v{APP_VERSION}", bg=T["surface"],
-                 fg=T["text_muted"], font=(FONT_FAMILY, 11)).pack(
-            side="left", pady=28)
 
-        # Backup button in header
-        ttk.Button(hdr, text="💾  Backup", style="Ghost.TButton",
-                   command=self._do_backup).pack(side="right", padx=10, pady=18)
-        ttk.Button(hdr, text="📤  Export CSV", style="Ghost.TButton",
-                   command=self._do_export_csv).pack(side="right", padx=0, pady=18)
+        # Title group
+        title_frame = tk.Frame(hdr, bg=T["surface"])
+        title_frame.pack(side="left", padx=32, pady=18)
+        tk.Label(title_frame, text="⚕  BMI Tracker Pro", bg=T["surface"],
+                 fg=T["text"], font=(FONT_FAMILY, 20, "bold")).pack(
+            side="left")
+        tk.Label(title_frame, text=f"  v{APP_VERSION}", bg=T["surface"],
+                 fg=T["text_muted"], font=(FONT_FAMILY, 10)).pack(
+            side="left", padx=(6, 0))
 
-        # ── Thin accent line ─────────────────────────────────────────────
-        tk.Frame(self, bg=T["accent"], height=3).pack(fill="x")
+        # Header buttons with glow
+        hdr_btn_frame = tk.Frame(hdr, bg=T["surface"])
+        hdr_btn_frame.pack(side="right", padx=20, pady=14)
+
+        backup_btn = GlowButton(hdr_btn_frame, text="💾  Backup",
+                                command=self._do_backup, style="ghost", width=130, height=36)
+        backup_btn.configure(bg=T["surface"])
+        backup_btn.pack(side="right", padx=6)
+
+        export_btn = GlowButton(hdr_btn_frame, text="📤  Export CSV",
+                                command=self._do_export_csv, style="ghost", width=140, height=36)
+        export_btn.configure(bg=T["surface"])
+        export_btn.pack(side="right", padx=6)
+
+        # ── Thin accent line with subtle glow ─────────────────────────────
+        accent_line = tk.Canvas(self, bg=T["bg"], height=4, highlightthickness=0)
+        accent_line.pack(fill="x")
+        accent_line.create_rectangle(0, 0, 2000, 4, fill=T["accent"], outline="")
 
         # ── Scrollable main body ─────────────────────────────────────────
         outer = tk.Frame(self, bg=T["bg"])
@@ -229,13 +326,13 @@ class MainWindow(tk.Tk):
 
         # Inner padding wrapper
         body_inner = tk.Frame(body, bg=T["bg"])
-        body_inner.pack(fill="both", expand=True, padx=30, pady=22)
+        body_inner.pack(fill="both", expand=True, padx=36, pady=28)
 
         # ── Unit toggle ──────────────────────────────────────────────────
         unit_row = tk.Frame(body_inner, bg=T["bg"])
-        unit_row.pack(fill="x", pady=(0, 16))
+        unit_row.pack(fill="x", pady=(0, 20))
         tk.Label(unit_row, text="Unit system:", bg=T["bg"], fg=T["text_muted"],
-                 font=(FONT_FAMILY, 12)).pack(side="left")
+                 font=(FONT_FAMILY, 11)).pack(side="left")
         for val, lbl in [("metric", "  Metric (kg / cm)  "),
                           ("imperial", "  Imperial (lbs / ft·in)  ")]:
             rb = tk.Radiobutton(
@@ -258,10 +355,11 @@ class MainWindow(tk.Tk):
         right.pack(side="right")
 
         # ── Gauge ────────────────────────────────────────────────────────
-        gauge_card = tk.Frame(right, bg=T["surface"], padx=12, pady=12)
+        gauge_card = tk.Frame(right, bg=T["surface"], padx=16, pady=16,
+                              highlightbackground=T["border"], highlightthickness=1)
         gauge_card.pack()
         self.gauge = BMIGauge(gauge_card)
-        self.gauge.pack()
+        self.gauge.pack(pady=(4, 0))
 
         self.category_lbl = tk.Label(
             gauge_card, text="——", bg=T["surface"],
@@ -274,7 +372,8 @@ class MainWindow(tk.Tk):
         self.ideal_lbl.pack()
 
         # ── Input card ───────────────────────────────────────────────────
-        inp_card = tk.Frame(left, bg=T["surface"], padx=24, pady=20)
+        inp_card = tk.Frame(left, bg=T["surface"], padx=28, pady=24,
+                            highlightbackground=T["border"], highlightthickness=1)
         inp_card.pack(fill="x")
 
         self._section_label(inp_card, "👤  User")
@@ -318,48 +417,60 @@ class MainWindow(tk.Tk):
 
         # ── Action buttons ───────────────────────────────────────────────
         btn_row = tk.Frame(body_inner, bg=T["bg"])
-        btn_row.pack(fill="x", pady=18)
+        btn_row.pack(fill="x", pady=22)
 
-        ttk.Button(btn_row, text="✔  Calculate & Save",
-                   command=self._on_calculate).pack(side="left", padx=(0, 10))
-        ttk.Button(btn_row, text="📋  History",
-                   style="Ghost.TButton",
-                   command=self._show_history).pack(side="left", padx=(0, 10))
-        ttk.Button(btn_row, text="📈  Trend Chart",
-                   style="Ghost.TButton",
-                   command=self._show_trend).pack(side="left", padx=(0, 10))
-        ttk.Button(btn_row, text="🗑  Delete User",
-                   style="Danger.TButton",
-                   command=self._delete_user).pack(side="right")
-        ttk.Button(btn_row, text="✖  Clear",
-                   style="Ghost.TButton",
-                   command=self._clear).pack(side="right", padx=(0, 10))
+        calc_btn = GlowButton(btn_row, text="✔  Calculate & Save",
+                              command=self._on_calculate, style="primary",
+                              width=185, height=42)
+        calc_btn.pack(side="left", padx=(0, 8))
+
+        hist_btn = GlowButton(btn_row, text="📋  History",
+                              command=self._show_history, style="ghost",
+                              width=130, height=42)
+        hist_btn.pack(side="left", padx=(0, 8))
+
+        trend_btn = GlowButton(btn_row, text="📈  Trend Chart",
+                               command=self._show_trend, style="ghost",
+                               width=145, height=42)
+        trend_btn.pack(side="left", padx=(0, 8))
+
+        del_btn = GlowButton(btn_row, text="🗑  Delete User",
+                             command=self._delete_user, style="danger",
+                             width=150, height=42)
+        del_btn.pack(side="right")
+
+        clear_btn = GlowButton(btn_row, text="✖  Clear",
+                               command=self._clear, style="ghost",
+                               width=110, height=42)
+        clear_btn.pack(side="right", padx=(0, 8))
 
         # ── Health tip card ──────────────────────────────────────────────
-        tip_card = tk.Frame(body_inner, bg=T["surface2"], padx=20, pady=16)
-        tip_card.pack(fill="x", pady=(0, 16))
+        tip_card = tk.Frame(body_inner, bg=T["surface2"], padx=24, pady=18,
+                            highlightbackground=T["border"], highlightthickness=1)
+        tip_card.pack(fill="x", pady=(0, 18))
         tk.Label(tip_card, text="💡  Health Tips", bg=T["surface2"],
-                 fg=T["accent"], font=(FONT_FAMILY, 13, "bold")).pack(anchor="w")
+                 fg=T["accent"], font=(FONT_FAMILY, 12, "bold")).pack(anchor="w")
         self.tip_lbl = tk.Label(tip_card, text="Calculate your BMI to see personalised tips.",
                                 bg=T["surface2"], fg=T["text_muted"],
                                 font=(FONT_FAMILY, 11), wraplength=820, justify="left")
-        self.tip_lbl.pack(anchor="w", pady=(6, 0))
+        self.tip_lbl.pack(anchor="w", pady=(8, 0))
 
         # ── Stats card ───────────────────────────────────────────────────
-        stat_card = tk.Frame(body_inner, bg=T["surface"], padx=24, pady=18)
+        stat_card = tk.Frame(body_inner, bg=T["surface"], padx=28, pady=20,
+                             highlightbackground=T["border"], highlightthickness=1)
         stat_card.pack(fill="x")
         tk.Label(stat_card, text="📊  Your Statistics", bg=T["surface"],
-                 fg=T["text"], font=(FONT_FAMILY, 13, "bold")).pack(anchor="w")
+                 fg=T["text"], font=(FONT_FAMILY, 12, "bold")).pack(anchor="w")
         self.stats_lbl = tk.Label(stat_card, text="Select a user to see stats.",
                                   bg=T["surface"], fg=T["text_muted"],
                                   font=(FONT_FAMILY, 11), justify="left")
-        self.stats_lbl.pack(anchor="w", pady=(8, 0))
+        self.stats_lbl.pack(anchor="w", pady=(10, 0))
 
         # ── Status bar ───────────────────────────────────────────────────
         self.status_var = tk.StringVar(value="Ready.")
         status_bar = tk.Label(self, textvariable=self.status_var,
                               bg=T["surface"], fg=T["text_muted"],
-                              font=(FONT_FAMILY, 10), anchor="w", padx=20, pady=8)
+                              font=(FONT_FAMILY, 9), anchor="w", padx=24, pady=10)
         status_bar.pack(fill="x", side="bottom")
 
     def _section_label(self, parent, text: str):
@@ -579,10 +690,10 @@ class HistoryWindow(tk.Toplevel):
         T = THEME
         tk.Label(self, text=f"BMI History for {user}",
                  bg=T["bg"], fg=T["text"],
-                 font=(FONT_FAMILY, 14, "bold")).pack(pady=(16, 8), padx=20, anchor="w")
+                 font=(FONT_FAMILY, 14, "bold")).pack(pady=(20, 10), padx=24, anchor="w")
 
         cols_frame = tk.Frame(self, bg=T["bg"])
-        cols_frame.pack(fill="both", expand=True, padx=20)
+        cols_frame.pack(fill="both", expand=True, padx=24)
 
         scrollbar = ttk.Scrollbar(cols_frame)
         scrollbar.pack(side="right", fill="y")
@@ -626,13 +737,17 @@ class HistoryWindow(tk.Toplevel):
         self.tree.pack(fill="both", expand=True)
 
         btn_row = tk.Frame(self, bg=T["bg"])
-        btn_row.pack(fill="x", padx=20, pady=10)
-        ttk.Button(btn_row, text="🗑  Delete Selected",
-                   style="Danger.TButton",
-                   command=self._delete_selected).pack(side="left")
-        ttk.Button(btn_row, text="✖  Close",
-                   style="Ghost.TButton",
-                   command=self.destroy).pack(side="right")
+        btn_row.pack(fill="x", padx=24, pady=14)
+
+        del_sel_btn = GlowButton(btn_row, text="🗑  Delete Selected",
+                                  command=self._delete_selected, style="danger",
+                                  width=170, height=38)
+        del_sel_btn.pack(side="left")
+
+        close_btn = GlowButton(btn_row, text="✖  Close",
+                               command=self.destroy, style="ghost",
+                               width=110, height=38)
+        close_btn.pack(side="right")
 
     def _delete_selected(self):
         sel = self.tree.selection()

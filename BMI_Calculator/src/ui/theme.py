@@ -51,9 +51,9 @@ def apply_ttk_styles(style) -> None:
 
     # Category-specific label styles
     for name, colour in [
-        ("Normal",   "#2ecc71"),
-        ("Warning",  "#f39c12"),
-        ("Danger",   "#e74c3c"),
+        ("Normal",   "#34D399"),
+        ("Warning",  "#FBBF24"),
+        ("Danger",   "#F87171"),
     ]:
         style.configure(f"{name}.Category.TLabel",
             background=T["surface"], foreground=colour, font=(F, 14, "bold"))
@@ -61,19 +61,19 @@ def apply_ttk_styles(style) -> None:
     # ── Buttons ────────────────────────────────────────────────────────────
     style.configure("TButton",
         background=T["accent"], foreground="#ffffff",
-        font=(F, 10, "bold"), padding=(12, 7), relief="flat", borderwidth=0)
+        font=(F, 10, "bold"), padding=(16, 9), relief="flat", borderwidth=0)
     style.map("TButton",
-        background=[("active", "#3a7bd5"), ("pressed", "#2a5ba5")])
+        background=[("active", "#5A7AE8"), ("pressed", "#4A6AD4")])
 
     style.configure("Danger.TButton",
         background=T["danger"], foreground="#ffffff",
-        font=(F, 10, "bold"), padding=(12, 7))
+        font=(F, 10, "bold"), padding=(16, 9))
     style.map("Danger.TButton",
-        background=[("active", "#c0392b")])
+        background=[("active", "#E55555")])
 
     style.configure("Ghost.TButton",
         background=T["surface2"], foreground=T["text"],
-        font=(F, 10), padding=(12, 7))
+        font=(F, 10), padding=(16, 9))
     style.map("Ghost.TButton",
         background=[("active", T["border"])])
 
@@ -81,7 +81,7 @@ def apply_ttk_styles(style) -> None:
     style.configure("TEntry",
         fieldbackground=T["entry_bg"], foreground=T["text"],
         insertcolor=T["text"], borderwidth=1, relief="solid",
-        font=(F, 11))
+        font=(F, 11), padding=(8, 6))
     style.map("TEntry",
         bordercolor=[("focus", T["accent"])])
 
@@ -89,7 +89,7 @@ def apply_ttk_styles(style) -> None:
     style.configure("TCombobox",
         fieldbackground=T["entry_bg"], foreground=T["text"],
         background=T["entry_bg"], selectbackground=T["accent"],
-        font=(F, 11))
+        font=(F, 11), padding=(8, 6))
     style.map("TCombobox",
         fieldbackground=[("readonly", T["entry_bg"])],
         foreground=[("readonly", T["text"])])
@@ -106,7 +106,7 @@ def apply_ttk_styles(style) -> None:
     # ── Scrollbar ─────────────────────────────────────────────────────────
     style.configure("TScrollbar",
         background=T["surface2"], troughcolor=T["surface"],
-        arrowcolor=T["text_muted"])
+        arrowcolor=T["text_muted"], borderwidth=0)
 
     # ── Notebook (tabs) ───────────────────────────────────────────────────
     style.configure("TNotebook",
