@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Atmos Weather</title>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <span>Atmos</span>
+          <strong>Weather</strong>
+        </a>
+
+        <section class="controls" aria-label="Weather controls">
+          <label class="search-box">
+            <span class="search-icon">⌕</span>
+            <input id="locationInput" autocomplete="off" spellcheck="false" placeholder="Search city, state, or country">
+            <button id="clearButton" type="button" aria-label="Clear search">×</button>
+          </label>
+          <button id="searchButton" class="search-button" type="button">Search</button>
+          <button id="refreshButton" class="round-button" type="button" aria-label="Refresh weather">↻</button>
+          <div class="unit-toggle" role="group" aria-label="Temperature unit">
+            <button class="active" type="button" data-unit="c">°C</button>
+            <button type="button" data-unit="f">°F</button>
+          </div>
+        </section>
+      </header>
+
+      <p id="status" class="status">Enter a location and press Enter. No weather API call is made until search.</p>
+
+      <section class="dashboard">
+        <article class="glass-card current-card">
+          <p class="eyebrow">Current Weather</p>
+          <h1 id="placeName">Search for weather</h1>
+          <p id="description" class="muted">Live conditions will appear here.</p>
+
+          <div class="current-main">
+            <div>
+              <div id="temperature" class="temperature">--°</div>
+              <p class="feels">Feels like <strong id="feelsLike">--°</strong></p>
+            </div>
+            <div id="bigIcon" class="weather-glyph" aria-hidden="true">☀</div>
+          </div>
+
+          <div class="summary-row">
+            <div>
+              <span>Wind</span>
+              <strong id="wind">--</strong>
+              <small id="windDir">--</small>
+            </div>
+            <div>
+              <span>Humidity</span>
+              <strong id="humidity">--</strong>
+              <small>Relative</small>
+            </div>
+            <div>
+              <span>High / Low</span>
+              <strong id="highLow">-- / --</strong>
+              <small>Today</small>
+            </div>
+          </div>
+        </article>
+
+        <aside class="glass-card daily-card">
+          <p class="eyebrow">Forecast</p>
+          <div id="dailyList" class="daily-list"></div>
+        </aside>
+
+        <article class="glass-card hourly-card">
+          <p class="eyebrow">Hourly Forecast</p>
+          <div id="hourlyList" class="hourly-list"></div>
+        </article>
+
+        <section class="detail-grid" aria-label="Weather details">
+          <article class="mini-card">
+            <span>Wind</span>
+            <strong id="detailWind">--</strong>
+            <small id="detailDirection">--</small>
+          </article>
+          <article class="mini-card">
+            <span>Humidity</span>
+            <strong id="detailHumidity">--</strong>
+            <small>Comfort level</small>
+          </article>
+          <article class="mini-card">
+            <span>Pressure</span>
+            <strong id="pressure">--</strong>
+            <small>hPa</small>
+          </article>
+          <article class="mini-card">
+            <span>Cloud Cover</span>
+            <strong id="cloudCover">--</strong>
+            <small>Sky coverage</small>
+          </article>
+          <article class="mini-card">
+            <span>Visibility</span>
+            <strong id="visibility">--</strong>
+            <small>Distance</small>
+          </article>
+          <article class="mini-card">
+            <span>Sunrise</span>
+            <strong id="sunrise">--</strong>
+            <small>Local time</small>
+          </article>
+          <article class="mini-card">
+            <span>Sunset</span>
+            <strong id="sunset">--</strong>
+            <small>Local time</small>
+          </article>
+          <article class="mini-card">
+            <span>Updated</span>
+            <strong id="updated">--</strong>
+            <small id="cacheState">Ready</small>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
